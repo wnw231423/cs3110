@@ -6,7 +6,14 @@ This repo contains my own solution of CS3110 textbook exercises. Normally only e
 ## Progress
 - [x] chapter 2
 - [x] chapter 3
-- [ ] chapter 4
-...
+- [x] chapter 4
+- [ ] chapter 5
+- [ ] chapter 6
+- [ ] chapter 7
+- [ ] chapter 8
+- [ ] chapter 9
+
+## What's more
+There is a small test template directory, I'm tring my best to decrease  code redundency.
 
 
