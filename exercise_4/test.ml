@@ -1,14 +1,6 @@
 open OUnit2
 open Exercise_4
-
-let string_of_int_list lst =
-    "[" ^ String.concat ";" (List.map string_of_int lst) ^ "]"
-
-let string_of_matrix lst =
-    "[" ^ String.concat ";" (List.map string_of_int_list lst) ^ "]"
-
-let maketest name expected fx printer = 
-    name >:: (fun _ -> assert_equal expected fx ~printer:printer)
+open Utils
 
 let invalid_matrix = [[1;2;3];[4;5]]
 let valid_matrix = [[1;2;3;4];[3;4;5;6];[2;3;4;5];[1;2;3;4];[1;2;3;5]]
@@ -39,8 +31,12 @@ let test4 = "test suite for multiply_matrices" >:::[
     maketest "2x3 and 3x2 matrices" [[58;64];[139;154]] (multiply_matrices matrix6 matrix7) string_of_matrix;
 ]
 
-let () = run_test_tt_main test1
-let () = run_test_tt_main test2
-let () = run_test_tt_main test3
-let () = run_test_tt_main test4
+let () = run_test (
+    "all tests" >::: [
+        test1;
+        test2;
+        test3;
+        test4
+    ]
+)
 
