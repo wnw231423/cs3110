@@ -76,4 +76,116 @@ let fill_batchedqueue n =
 
 
 (*** Exercise: queue efficiency ***)
+(* 1. List is implemented by single linked list. In ListQueue, when do enqueue,
+ *    you need to append the element at the end of list, which takes linear time.
+ * 2. Adding n elements take 1 + 2 + ... + n time, which is O(n^2).
+ * 3. In BatchedQueue, since inbox regards head as the last position of queue, 
+ *    adding one element at the head of a list takes constant time.
+ * 4. Adding n elements takes n * Constant, which is linear. 
+ *)
 
+
+
+(*** Exercise: binary search tree map ***)
+module type Map = sig
+    type ('k, 'v) t
+    val empty: ('k, 'v) t
+    val insert: 'k -> 'v -> ('k, 'v) t -> ('k, 'v) t
+    val lookup: 'k -> ('k, 'v) t -> 'v
+    val bindings: ('k, 'v) t -> ('k * 'v) list
+end
+
+module BstMap: Map = struct
+    type 'a tree = Leaf | Node of 'a * 'a tree * 'a tree
+    
+    type ('k, 'v) t = ('k * 'v) tree
+    
+    let empty = Leaf
+    
+    (* Comments inside are my bad codes... *)
+    let rec insert k v = function
+        | Leaf -> Node ((k, v), Leaf, Leaf)
+        | Node ((key, value), left, right) ->
+            if k = key then Node ((key, v), left, right)
+            (* else if k < key then insert k v left *)
+            else if k < key then Node ((key, value), insert k v left, right)
+            (* else insert k v right *)
+            else Node ((key, value), left, insert k v right)
+
+    let rec lookup k = function
+        | Leaf -> failwith "key not found"
+        | Node ((key, value), left, right) ->
+            if (key = k) then value
+            else if k < key then lookup k left
+            else lookup k right
+
+    let rec bindings = function
+        | Leaf -> []
+        | Node ((k, v), left, right) -> 
+            bindings left @ [(k, v)] @ bindings right
+end
+
+
+(*** Exercise: fraction ***)
+module type Fraction = sig
+    type t
+    val make: int -> int -> t
+    val numerator: t -> int
+    val denominator: t -> int
+    val to_string: t -> string
+    val to_float: t -> float
+    val add: t -> t -> t
+    val mul: t -> t -> t
+end
+
+module Fraction: Fraction = struct
+    type t = Fr of int * int
+
+    let make n d =
+        if d = 0 then failwith "zero division error"
+        else Fr (n, d)
+    
+    let numerator = function
+        | Fr (n, _) -> n
+
+    let denominator = function
+        | Fr (_, d) -> d
+
+    let to_string = function
+        | Fr (n, d) -> string_of_int n ^ "/" ^ string_of_int d
+
+    let to_float = function
+        | Fr (n, d) -> Float.of_int n /. Float.of_int d
+
+    let add f1 f2 = 
+        match f1, f2 with
+        | Fr (n1, d1), Fr (n2, d2) -> Fr (n1 * d2 + n2 * d1, d1 * d2)
+
+    let mul f1 f2 = 
+        match f1, f2 with
+        | Fr (n1, d1), Fr (n2, d2) -> Fr (n1 * n2, d1 * d2)
+end
+
+module ReduceFranction (M: Fraction) = struct
+    include M
+
+    (** [gcd x y] is the greatest common divisor of [x] and [y].
+    Requires: [x] and [y] are positive. *)
+    let rec gcd x y =
+        if x = 0 then y
+        else if (x < y) then gcd (y - x) x
+        else gcd y (x - y)
+
+    let reduce v = 
+        let n = numerator v in
+        let d = denominator v in
+        let gcd_num = gcd (abs n) (abs d) in
+        if d > 0 then make (n / gcd_num) (d / gcd_num)
+        else make (-n / gcd_num) (-d / gcd_num)
+
+    let make n d = M.make n d |> reduce
+
+    let add f1 f2 = M.add f1 f2 |> reduce 
+
+    let mul f1 f2 = M.mul f1 f2 |> reduce 
+end 
