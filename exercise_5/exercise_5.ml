@@ -189,3 +189,59 @@ module ReduceFranction (M: Fraction) = struct
 
     let mul f1 f2 = M.mul f1 f2 |> reduce 
 end 
+
+module ReducedF = ReduceFranction(Fraction)
+
+(*** Exercise: date order ***)
+type date = {month: int; day: int}
+
+(* Comments below are my bad codes... *)
+module Date = struct
+    type t = date
+    let compare d1 d2 =
+        (* match d1, d2 with *)
+        (* | {month = m1; day = d1}, {month = m2; day = d2} -> *)
+        (*     if m1 < m2 then -1 *)
+        (*     else if m1 > m2 then 1 *)
+        (*     else if d1 < d2 then -1 *)
+        (*     else if d1 > d2 then 1 *)
+        (*     else 0 *)
+        if d1.month = d2.month then d1.day - d2.day
+        else d1.month - d2.month
+end
+
+(*** Exercise: calender ***)
+module DateMap = Map.Make(Date)
+
+type calender = string DateMap.t
+
+let ca = DateMap.(empty |> add {month = 11; day = 17} "birthday")
+
+let print_calender c = 
+    DateMap.iter (fun date s -> Printf.printf "%s: %d-%d" s date.month date.day)
+    c
+
+
+(*** Exercise: is for ***)
+module CharMap = Map.Make(Char)
+
+let is_for (char_map: string CharMap.t) = 
+    CharMap.mapi (fun c s -> (String.make 1 c) ^ "is for" ^ s) char_map
+
+
+(*** Exercise: first after ***)
+let first_after ca d =
+    DateMap.find_first (fun dd -> Date.compare dd d > 0) ca    
+    |> fun (_, event) -> event
+
+
+(*** Exercise: sets ***)
+module MyString = struct
+    type t = string
+
+    let compare s1 s2 =
+        String.compare (String.lowercase_ascii s1) (String.lowercase_ascii s2)
+end
+
+module MyStringSet = Set.Make(MyString)
+
