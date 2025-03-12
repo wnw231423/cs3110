@@ -245,3 +245,8 @@ end
 
 module MyStringSet = Set.Make(MyString)
 
+(*** Exercise: implementation with abstract interface ***)
+(* After changing the specific definition of [type] in date.mli,
+ * the output became something like "val d: type = <absta>".
+ * That's because the abstract definition in interface.
+ *)

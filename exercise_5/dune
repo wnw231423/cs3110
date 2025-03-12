@@ -1,4 +1,2 @@
-(executable
- (name test)
- (libraries ounit2)
- (modules test utils))
+(library
+  (name algebra_refactored))
