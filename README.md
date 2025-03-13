@@ -17,6 +17,6 @@ This repo contains my own solution of CS3110 textbook exercises. Normally only e
 1. chapter 5, exercise `refactor arith` needs better solution
 
 ## What's more
-There is a small test template directory, I'm tring my best to decrease  code redundency.
+There is a small test template directory, I'm tring my best to decrease  code redundancy.
 
 
