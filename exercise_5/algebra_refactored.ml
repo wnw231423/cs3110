@@ -1,10 +1,16 @@
-(*** Exercise: refactor arith ***)
-
-(* OfInt module type, analogy to one interface *)
+(***** Exercise: refactor arith *****)
+(* This is the best solution I can write, several references are listed here:
+ * 1. the use of `:=`: https://ocaml.org/manual/5.3/signaturesubstitution.html
+ * 2. why so many intermediate modules: 
+ *    - My question on reddit: https://www.reddit.com/r/ocaml/comments/1j9p0e6/need_help_on_one_ocaml_exercise_about_module/
+ *    - Inspiration from featurewit001: https://github.com/featherwit001/CS3110_OCaml_Programming/blob/main/feather/exercises/algerbra.ml
+ * I think a simple rule of thumb is that Prepare everything before doing final module type "CASTING".
+ *)
 module type OfInt = sig
     type t
     val of_int: int -> t
 end
+
 
 module type RingWithoutOfInt = sig
     type t
@@ -22,23 +28,32 @@ module type RingWithoutOfInt = sig
     val to_string : t -> string
 end
 
-(*Ring module type which implements OfInt *)
+
 module type Ring = sig
     include OfInt
 
     include RingWithoutOfInt with type t := t
 end
 
-module ImplementOfInt (M: RingWithoutOfInt) = (struct
+
+module type Field = sig
+    include Ring
+
+    val ( / ): t -> t -> t
+end
+
+
+module ImplementOfInt (M: RingWithoutOfInt) = struct
     include M 
 
     let rec of_int x = 
         if x > 0 then ( + ) zero (of_int (Stdlib.(-) x 1))
         else if x < 0 then ( + ) zero (of_int (Stdlib.(+) x 1))
         else zero
-end: Ring with type t = M.t)
+end
 
-module IntRingWithoutOfInt: RingWithoutOfInt with type t = int = struct
+
+module IntRingWithoutOfInt = struct
     type t = int
 
     let zero = 0
@@ -54,7 +69,8 @@ module IntRingWithoutOfInt: RingWithoutOfInt with type t = int = struct
     let to_string = string_of_int
 end
 
-module FloatRingWithoutOfInt: RingWithoutOfInt with type t = float = struct
+
+module FloatRingWithoutOfInt = struct
     type t = float
 
     let zero = 0.
@@ -70,29 +86,44 @@ module FloatRingWithoutOfInt: RingWithoutOfInt with type t = float = struct
     let to_string = string_of_float
 end
 
-module IntRing: Ring with type t = int = ImplementOfInt(IntRingWithoutOfInt)
 
-module FloatRing: Ring with type t = float = ImplementOfInt(FloatRingWithoutOfInt)
+module IntRingWithOfInt = ImplementOfInt(IntRingWithoutOfInt)
 
-module type Field = sig
-    include Ring
-    
-    val ( / ): t -> t -> t
-end
 
-module IntField: Field = struct
-    include IntRing
+(*** IntRing: Ring ***)
+module IntRing: Ring = IntRingWithOfInt
+
+
+module FloatRingWithOfInt = ImplementOfInt(FloatRingWithoutOfInt)
+
+
+(*** FloatRing: Ring ***)
+module FloatRing: Ring = FloatRingWithOfInt
+
+
+module IntRingWithOfIntEx = struct
+    include IntRingWithOfInt
 
     let ( / ) = ( / )
 end
 
-module FloatField: Field = struct
-    include FloatRing
+
+(*** IntField: Field ***)
+module IntField: Field = IntRingWithOfIntEx
+
+
+module FloatRingWithOfIntEx = struct
+    include FloatRingWithOfInt
 
     let ( / ) = ( /. )
 end
 
-module RationalizeField (M: Field) = struct
+
+(*** FloatField: Field ***)
+module FloatField: Field = FloatRingWithOfIntEx
+
+
+module RationalizeRingWithoutOfInt (M: RingWithoutOfInt) = struct
     include M
 
     type t = M.t * M.t
@@ -112,19 +143,37 @@ module RationalizeField (M: Field) = struct
     let to_string (n, d) = M.to_string n ^ "/" ^ M.to_string d
 end
 
-module IntRationalFieldWithoutOfInt = RationalizeField(IntField)
 
-module IntRational: Field= struct
+module IntRationalFieldWithoutOfInt = RationalizeRingWithoutOfInt(IntRingWithoutOfInt)
+
+
+module IntRationalRingWithOfInt = ImplementOfInt(IntRationalFieldWithoutOfInt)
+
+
+module IntRationalFieldWithOfInt = struct
     include IntRationalFieldWithoutOfInt
-    module O = ImplementOfInt(IntRationalFieldWithoutOfInt)
-    let of_int = O.of_int
+
+    let of_int = IntRationalRingWithOfInt.of_int
 end
 
-module FloatRationalFieldWithoutOfInt = RationalizeField(FloatField)
 
-module FloatRational: Field = struct
+(*** IntRational: Field ***)
+module IntRational: Field = IntRationalFieldWithOfInt
+
+
+module FloatRationalFieldWithoutOfInt = RationalizeRingWithoutOfInt(FloatRingWithoutOfInt)
+
+
+module FloatRationalRingWithOfInt = ImplementOfInt(FloatRationalFieldWithoutOfInt)
+
+
+module FloatRationFieldWithOfInt = struct
     include FloatRationalFieldWithoutOfInt
-    module O = ImplementOfInt(FloatRationalFieldWithoutOfInt)
-    let of_int = O.of_int
+
+    let of_int = FloatRationalRingWithOfInt.of_int
 end
+
+
+(*** FloatRational: Field ***)
+module FloatRational: Field = FloatRationFieldWithOfInt
 
