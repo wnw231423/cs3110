@@ -2,7 +2,7 @@
 
 ## Info
 
-This repo contains my own solution of CS3110 textbook exercises. Normally only exercises with 3⭐ or above and relatives are included. Feel free to point out mistakes or make suggestions.
+This repo contains my own solution of CS3110 textbook (2025sp) exercises. Normally only exercises with 3⭐ or above and relatives are included. Feel free to point out mistakes or make suggestions.
 
 ## Progress
 
