@@ -108,3 +108,50 @@ end
             let alone his extra queryings and operations
         2. His implementation doc did so well while I totally comment nothing. *)
 
+
+(*******************************)
+(*** Exercise: function maps ***)
+(*******************************)
+module type MyMap = sig
+    type ('k, 'v) t
+
+    val empty: ('k, 'v) t
+
+    val mem: 'k -> ('k, 'v) t -> bool
+
+    val find: 'k -> ('k, 'v) t -> 'v
+
+    val add: 'k -> 'v -> ('k, 'v) t -> ('k, 'v) t
+
+    val remove: 'k -> ('k, 'v) t -> ('k, 'v) t
+end
+
+module FMap: MyMap = struct
+    (** AF: with the definition of functions through relation,
+        a binary relation {<k1, v1>, ..., <kn, vn>} represents
+        the map of the same content. However, since functions
+        are injective, k1, ..., kn are different from each other
+        and for any k doesn't belong to its domain, it should
+        raise error. *)
+    type ('k, 'v) t = 'k -> 'v
+
+    let empty = failwith "key not found"
+
+    let mem key map =
+        match map key with
+        | exception _ -> false
+        | v -> true
+
+    let find key map = map key
+
+    let add key value map =
+        let f k =
+            if k == key then value else map k
+        in f
+
+    let remove key map =
+        let f k =
+            if k == key then failwith "key not found" else map k
+        in f
+end
+
