@@ -1,0 +1,6 @@
+(executable
+  (name test)
+  (libraries ounit2)
+  (instrumentation
+    (backend bisect_ppx)))
+

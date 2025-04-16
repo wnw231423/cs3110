@@ -155,3 +155,34 @@ module FMap: MyMap = struct
         in f
 end
 
+
+(*****************************)
+(*** Exercise: random list ***)
+(*****************************)
+
+(* TODO *)
+
+
+(************************************)
+(*** Exercise: qcheck odd divisor ***)
+(************************************)
+
+(** [odd_divisor x] is an odd divisor of [x].
+    Requires: [x >= 0]. *)
+let odd_divisor x =
+    if x < 3 then 1
+    else
+        let rec search y =
+            if y >= x then y (* exceed upper bound *)
+            else if x mod y = 0 then y (* found a divisor! *)
+            else search (y + 2) (* skip evens *)
+        in search 3
+
+let is_odd n = n mod 2 = 1
+
+let is_divisor_of d n = n mod d = 0
+
+let t = QCheck.Test.make QCheck.small_int
+    (fun i ->
+        let d = odd_divisor i
+        in is_odd d && is_divisor_of d i)
