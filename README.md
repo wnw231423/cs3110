@@ -11,7 +11,7 @@ This repo contains my own solution of CS3110 textbook (2025sp) exercises. Normal
 - [x] chapter 4
 - [x] chapter 5
 - [ ] chapter 6
-- [ ] chapter 7
+- [x] chapter 7
 - [ ] chapter 8
 - [ ] chapter 9
 
